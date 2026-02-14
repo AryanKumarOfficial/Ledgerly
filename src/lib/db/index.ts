@@ -1,3 +1,4 @@
+import "@/lib/db/realation";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { databaseEnv } from "@/env";
@@ -9,7 +10,6 @@ if (!connectionString) {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var postgreSqlClient: ReturnType<typeof postgres> | undefined;
 }
 
