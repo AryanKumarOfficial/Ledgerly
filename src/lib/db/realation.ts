@@ -15,7 +15,7 @@ export const userRelations = relations(user, ({ many }) => ({
   cards: many(card),
   transactions: many(transaction),
   notifications: many(notification),
-  benificiaries: many(beneficiary),
+  beneficiaries: many(beneficiary),
 }));
 
 export const cardRelations = relations(card, ({ one, many }) => ({

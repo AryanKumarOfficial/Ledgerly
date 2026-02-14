@@ -13,7 +13,7 @@ export const user = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 256 }).notNull(),
     email: varchar("email").unique().notNull(),
-    password: varchar("password").notNull(),
+    password: varchar("password", { length: 255 }).notNull(),
     isVerified: boolean("is_verified").default(false).notNull(),
     phone: varchar("phone", { length: 15 }).unique().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -23,7 +23,7 @@ export const user = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
-    timezone: varchar("timezone", { length: 64 }).notNull().default("UTC"),
+    timezone: varchar("timezone", { length: 64 }).default("UTC"),
   },
   (table) => [
     index("email_idx").on(table.email),
