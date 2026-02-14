@@ -6,3 +6,4 @@ export * from "./bill";
 export * from "./beneficiary";
 export * from "./providerGeneratedBill";
 export * from "./notification";
+export * from "./verificationToken";

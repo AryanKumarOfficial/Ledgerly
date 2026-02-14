@@ -1,4 +1,4 @@
-import { smtpEnv } from "@/env";
+import { baseEnv, smtpEnv } from "@/env";
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import { ReactElement } from "react";
@@ -25,7 +25,7 @@ export const sendEmail = async ({
   try {
     const emailHtml = await render(template);
     const option = {
-      from: `Ledgerly <${smtpEnv.sender}>`,
+      from: `${baseEnv.appName} <${smtpEnv.sender}>`,
       to,
       subject,
       html: emailHtml,

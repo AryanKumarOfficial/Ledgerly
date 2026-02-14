@@ -3,8 +3,11 @@ import { registerSchema } from "@/lib/schema/register";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import argon2 from "argon2";
-import { user } from "@/lib/db/schema";
+import { user, verificationToken } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { inngest } from "@/inngest/client";
+import crypto from "crypto";
+import { baseEnv } from "@/env";
 
 export const POST = async (req: NextRequest) => {
   const success = false;
@@ -41,15 +44,53 @@ export const POST = async (req: NextRequest) => {
 
     // hash the password
 
-    const hash = await argon2.hash(password);
+    const hashedPass = await argon2.hash(password);
 
-    const newUser: typeof user.$inferInsert = {
+    // prepare data
+    const newUserPayload: typeof user.$inferInsert = {
       ...userData,
       email: normalizedEmail,
-      password: hash,
+      password: hashedPass,
     };
 
-    await db.insert(user).values(newUser);
+    // save to db
+
+    const { newUser, rowToken } = await db.transaction(async (tx) => {
+      const [newUser] = await tx.insert(user).values(newUserPayload).returning({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      });
+
+      // generate token
+
+      const rowToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = await argon2.hash(rowToken);
+
+      // save token to db
+      await tx.insert(verificationToken).values({
+        userId: newUser.id,
+        tokenHash,
+        type: "EMAIL_VERIFY",
+        expiresAt: new Date(Date.now() + 1000 * 60 * 30), // 30 Min
+      });
+      return { newUser, rowToken };
+    });
+
+    // prepare link
+    const verificationLink = `${baseEnv.hostUrl}/auth/verify?token=${rowToken}`;
+
+    // send email
+
+    await inngest.send({
+      name: "auth/verification.send",
+      data: {
+        email: newUser.email,
+        subject: `Complete Your Registration on ${baseEnv.appName}`,
+        link: verificationLink,
+        name: newUser.name,
+      },
+    });
 
     return NextResponse.json(
       {

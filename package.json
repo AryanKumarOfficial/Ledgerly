@@ -13,7 +13,8 @@
     "db:push": "bunx drizzle-kit push",
     "db:pull": "bunx drizzle-kit pull",
     "db:up": "bunx drizzle-kit up",
-    "db:studio": "bunx drizzle-kit studio"
+    "db:studio": "bunx drizzle-kit studio",
+    "inngest": "bunx inngest dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -21,6 +22,8 @@
     "argon2": "^0.44.0",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
+    "inngest": "^3.52.0",
+    "inngest-cli": "^1.17.0",
     "next": "16.1.6",
     "nodemailer": "^8.0.1",
     "postgres": "^3.4.8",
@@ -50,6 +53,7 @@
     "unrs-resolver"
   ],
   "trustedDependencies": [
+    "inngest-cli",
     "sharp",
     "unrs-resolver"
   ]

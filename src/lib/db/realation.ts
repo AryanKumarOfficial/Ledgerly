@@ -8,8 +8,8 @@ import {
   notification,
   providerGeneratedBill,
   beneficiary,
+  verificationToken,
 } from "@/lib/db/schema";
-import { use } from "react";
 
 export const userRelations = relations(user, ({ many }) => ({
   cards: many(card),
@@ -82,3 +82,14 @@ export const beneficiaryRelations = relations(beneficiary, ({ one, many }) => ({
   }),
   transactions: many(transaction),
 }));
+
+
+export const verificationRelations = relations(
+  verificationToken,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [verificationToken.userId],
+      references: [user.id],
+    }),
+  })
+);
