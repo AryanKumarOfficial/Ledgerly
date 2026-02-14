@@ -8,8 +8,7 @@ import {
   pgTable,
   uuid,
 } from "drizzle-orm/pg-core";
-import { user } from "./user";
-import { card } from "./card";
+import { user, card, category } from "./index";
 
 export const transaction = pgTable("transaction", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -25,7 +24,12 @@ export const transaction = pgTable("transaction", {
   cashback: decimal(),
   title: varchar("title", { length: 256 }).notNull(),
   description: text("description"),
-  categoryId: uuid("category_id").notNull(),
+  categoryId: uuid("category_id")
+    .notNull()
+    .references(() => category.id, {
+      onDelete: "restrict",
+      onUpdate: "cascade",
+    }),
   type: varchar("type", { length: 256 }),
   isVerified: boolean().default(false),
   transactionDate: date().defaultNow(),
