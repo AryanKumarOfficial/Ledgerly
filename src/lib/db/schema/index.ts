@@ -2,3 +2,7 @@ export * from "./card";
 export * from "./user";
 export * from "./transaction";
 export * from "./category";
+export * from "./bill";
+export * from "./beneficiary";
+export * from "./providerGeneratedBill";
+export * from "./notification";
