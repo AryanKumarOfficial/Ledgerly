@@ -1,8 +1,8 @@
-import "@/lib/db/realation";
+import * as relations from "@/lib/db/realation";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { databaseEnv } from "@/env";
-import * as schema from "@/lib/db/schema"
+import * as schema from "@/lib/db/schema";
 const { connectionString } = databaseEnv;
 
 if (!connectionString) {
@@ -24,4 +24,6 @@ if (process.env.NODE_ENV !== "production") {
   postgreSqlClient = postgres(connectionString);
 }
 
-export const db = drizzle(postgreSqlClient,{schema});
+export const db = drizzle(postgreSqlClient, {
+  schema: { ...schema, ...relations },
+});
