@@ -7,7 +7,7 @@ if (!databaseConnectionString) {
 export default defineConfig({
   out: "./.drizzle",
   dialect: "postgresql",
-  schema: ["./src/lib/db/schema", "./src/lin/db/relations"],
+  schema: ["./src/lib/db/schema"],
   migrations: {
     prefix: "supabase",
     table: "__drizzle_migrations__",
