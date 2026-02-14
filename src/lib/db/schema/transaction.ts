@@ -9,10 +9,13 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { user, card, category } from "./index";
+import { beneficiary } from "./beneficiary";
 
 export const transaction = pgTable("transaction", {
   id: uuid("id").defaultRandom().primaryKey(),
-  beneficiaryId: uuid("beneficiary_id").notNull(),
+  beneficiaryId: uuid("beneficiary_id")
+    .notNull()
+    .references(() => beneficiary.id),
   createdByUserId: uuid("created_by_user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
