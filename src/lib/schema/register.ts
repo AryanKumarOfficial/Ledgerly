@@ -16,7 +16,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(256, "Name should be only 256 character long!")
-    .refine((val) => val.length < 4, {
+    .refine((val) => val.length >= 4, {
       error: `Name must be atleast 4 character`,
     }),
   email: z.email({ error: `Enter a valid Email ID` }),
