@@ -46,7 +46,7 @@ export const POST = async (req: NextRequest) => {
 
     const hashedPass = await argon2.hash(password, {
       type: argon2.argon2id,
-      memoryCost: 19456, 
+      memoryCost: 19456,
       timeCost: 2,
       parallelism: 1,
     });
@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest) => {
 
       // generate token
 
-      const rowToken = crypto.randomBytes(32).toString("hex");
+      const rowToken = crypto.randomBytes(32).toString("base64url");
       const tokenHash = await argon2.hash(rowToken);
 
       // save token to db
@@ -83,7 +83,7 @@ export const POST = async (req: NextRequest) => {
     });
 
     // prepare link
-    const verificationLink = `${baseEnv.hostUrl}/auth/verify?token=${rowToken}`;
+    const verificationLink = `${baseEnv.hostUrl}/auth/verify?token=${rowToken}&uid=${newUser.id}`;
 
     // send email
 

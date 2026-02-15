@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { session, user } from "@/lib/db/schema";
-import { generateSessionToken, sessionExpiry } from "@/lib/helpers/session";
+import { generateToken, sessionExpiry } from "@/lib/helpers/session";
 import { loginSchema } from "@/lib/schema/login";
 import argon2 from "argon2";
 import { eq } from "drizzle-orm";
@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    const token = generateSessionToken();
+    const token = generateToken();
     const expiresAt = sessionExpiry(3);
 
     await db.insert(session).values({

@@ -26,7 +26,6 @@ export const verificationToken = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 
     createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
       .defaultNow(),
   },
   (table) => [
