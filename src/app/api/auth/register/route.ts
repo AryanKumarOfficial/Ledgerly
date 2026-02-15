@@ -44,7 +44,12 @@ export const POST = async (req: NextRequest) => {
 
     // hash the password
 
-    const hashedPass = await argon2.hash(password);
+    const hashedPass = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 19456, 
+      timeCost: 2,
+      parallelism: 1,
+    });
 
     // prepare data
     const newUserPayload: typeof user.$inferInsert = {

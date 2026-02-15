@@ -9,6 +9,7 @@ import {
   providerGeneratedBill,
   beneficiary,
   verificationToken,
+  session,
 } from "@/lib/db/schema";
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -16,6 +17,7 @@ export const userRelations = relations(user, ({ many }) => ({
   transactions: many(transaction),
   notifications: many(notification),
   beneficiaries: many(beneficiary),
+  sessions: many(session),
 }));
 
 export const cardRelations = relations(card, ({ one, many }) => ({
@@ -83,7 +85,6 @@ export const beneficiaryRelations = relations(beneficiary, ({ one, many }) => ({
   transactions: many(transaction),
 }));
 
-
 export const verificationRelations = relations(
   verificationToken,
   ({ one }) => ({
@@ -91,5 +92,12 @@ export const verificationRelations = relations(
       fields: [verificationToken.userId],
       references: [user.id],
     }),
-  })
+  }),
 );
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
