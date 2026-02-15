@@ -10,7 +10,7 @@ import { user } from "./user";
 
 export const VerificationTypeEnum = pgEnum("verification_type", [
   "EMAIL_VERIFY",
-  "PASSEORD_RESET",
+  "PASSWORD_RESET",
   "MAGIL_LINK",
 ]);
 

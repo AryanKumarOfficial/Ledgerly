@@ -11,6 +11,7 @@ export const POST = async (req: NextRequest) => {
   const success = false;
   try {
     const { email } = await req.json();
+
     if (!email) {
       return NextResponse.json(
         {
@@ -20,8 +21,8 @@ export const POST = async (req: NextRequest) => {
         { status: 400 },
       );
     }
-    
-    if (!(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email))) {
+
+    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
       return NextResponse.json(
         {
           success,
@@ -30,7 +31,7 @@ export const POST = async (req: NextRequest) => {
         { status: 400 },
       );
     }
-    
+
     const userExists = await db.query.user.findFirst({
       where: eq(user.email, email),
     });
@@ -39,17 +40,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success,
-          message: `If an account with this email exists, a verification link has been sent.`,
-        },
-        { status: 404 },
-      );
-    }
-
-    if (userExists && userExists.isVerified) {
-      return NextResponse.json(
-        {
-          success: true,
-          message: `Account already verified!`,
+          meesage: `If an account with this email exists, a password reset link has been sent.`,
         },
         { status: 200 },
       );
@@ -63,26 +54,23 @@ export const POST = async (req: NextRequest) => {
     const tokenHash = await argon2.hash(token, {
       type: argon2.argon2id,
       memoryCost: 19456,
-      timeCost: 2,
       parallelism: 1,
+      timeCost: 2,
     });
-
-    const expiresAt = tokenExpiryMinutes(30);
-
     await db.insert(verificationToken).values({
-      userId: userExists.id,
+      type: "PASSWORD_RESET",
+      expiresAt: tokenExpiryMinutes(15),
       tokenHash,
-      type: "EMAIL_VERIFY",
-      expiresAt,
+      userId: userExists.id,
     });
 
-    const verificationLink = `${baseEnv.hostUrl}/auth/verify?token=${token}&uid=${userExists.id}`;
+    const verificationLink = `${baseEnv.hostUrl}/auth/reset-password?token=${token}&uid=${userExists.id}`;
 
     await inngest.send({
       name: "auth/verification.send",
       data: {
         email: userExists.email,
-        subject: `Complete Your Registration on ${baseEnv.appName}`,
+        subject: `Forget Password Request - ${baseEnv.appName}`,
         link: verificationLink,
         name: userExists.name,
       },
@@ -90,10 +78,10 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({
       success: true,
-      message: `Verification link send successfully`,
+      message: `If an account with this email exists, a password reset link has been sent.`,
     });
   } catch (error) {
-    console.log(`Error Requesting Verification: `, error);
+    console.error(`Error Forgetting Password: `, error);
     return NextResponse.json({
       success,
       message: `Internal Server Error`,
