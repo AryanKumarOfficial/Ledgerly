@@ -12,11 +12,17 @@ export default function Home() {
   return (
     <main className="flex flex-col gap-10 justify-center items-center min-h-screen">
       <h1 className="text-4xl font-bold">Welcome to the Ledgerly</h1>
-      <p>user is {isAuthenticated ? `authenticated` : `not authenticated`}</p>
-      <p>
-        Hello! {user.name} - {user.email} - {user.phone} - {user.timezone} -{" "}
-        {user.isVerified ? `Verified` : `Not Verified`}
-      </p>
+      {isAuthenticated && (
+        <>
+          <p>
+            user is {isAuthenticated ? `authenticated` : `not authenticated`}
+          </p>
+          <p>
+            Hello! {user?.name} - {user?.email} - {user?.phone} -{" "}
+            {user?.timezone} - {user?.isVerified ? `Verified` : `Not Verified`}
+          </p>
+        </>
+      )}
     </main>
   );
 }

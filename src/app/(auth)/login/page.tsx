@@ -64,10 +64,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (data: Login) => {
     try {
       const message = await dispatch(loginThunk(data)).unwrap();
-      toast.success(
-        "Account created successfully! Please check your email to activate your account.",
-      );
-      toast.success("Account created!", {
+      toast.success("Logged In!", {
         description: message as string,
         duration: 5000,
       });
