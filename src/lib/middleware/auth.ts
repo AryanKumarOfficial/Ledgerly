@@ -13,6 +13,9 @@ export const getCurrentUser = async () => {
 
   const dbUser = await db.query.user.findFirst({
     where: eq(user?.id, dbSession.userId),
+    columns: {
+      password: false,
+    },
   });
 
   return dbUser || null;

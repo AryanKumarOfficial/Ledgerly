@@ -15,7 +15,7 @@ export const GET = async () => {
       );
     }
 
-    return NextResponse.json(user);
+    return NextResponse.json({ user });
   } catch (error) {
     console.log(`Failed to fetch Profile: `, error);
     return NextResponse.json({
