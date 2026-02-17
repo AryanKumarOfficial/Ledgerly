@@ -1,11 +1,12 @@
+import type { Login, Register } from "@/types/auth.type";
 import { api } from "./axios";
 
-export const loginUser = async (data: any) => {
+export const loginUser = async (data: Login) => {
   const res = await api.post(`/auth/login`, data);
   return res.data;
 };
 
-export const registerUser = async (data: any) => {
+export const registerUser = async (data: Register) => {
   const res = await api.post(`/auth/register`, data);
   return res.data;
 };

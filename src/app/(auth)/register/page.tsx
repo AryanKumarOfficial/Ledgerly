@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React, { useTransition } from "react";
+import React from "react";
 import {
   Field,
   FieldError,
@@ -16,13 +16,21 @@ import {
 } from "@/components/ui/field";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { frontendRegisterSchema, Register } from "@/lib/schema/register";
+import {
+  frontendRegisterSchema,
+  Register,
+  registerSchema,
+} from "@/lib/schema/register";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { registerThunk } from "@/lib/features/auth/authThunks";
 
 const RegisterPage: React.FC = () => {
-  const [isPending, startTransition] = useTransition();
+  const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state) => state.auth);
   const hookform = useForm<Register>({
     resolver: zodResolver(frontendRegisterSchema),
     defaultValues: {
@@ -34,7 +42,13 @@ const RegisterPage: React.FC = () => {
     },
   });
 
-  const onSubmit = (data: Register) => {
+  const onSubmit = async (data: Register) => {
+    const parsed = registerSchema.safeParse(data);
+    if (!parsed.success) {
+      toast.error("Invalid form data");
+      return;
+    }
+    dispatch(registerThunk(parsed.data));
   };
 
   return (
@@ -169,7 +183,7 @@ const RegisterPage: React.FC = () => {
               Reset
             </Button>
             <Button type="submit" form="registration-form">
-              {isPending?`Registering`:`Register`}
+              {loading ? `Registering` : `Register`}
             </Button>
           </Field>
         </CardFooter>
