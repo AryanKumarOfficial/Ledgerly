@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Field,
   FieldError,
@@ -27,10 +27,13 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { registerThunk } from "@/lib/features/auth/authThunks";
+import { useRouter } from "next/navigation";
+import { clearError } from "@/lib/features/auth/authSlice";
 
 const RegisterPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { loading } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+  const { loading, error } = useAppSelector((state) => state.auth);
   const hookform = useForm<Register>({
     resolver: zodResolver(frontendRegisterSchema),
     defaultValues: {
@@ -42,13 +45,26 @@ const RegisterPage: React.FC = () => {
     },
   });
 
-  const onSubmit = async (data: Register) => {
-    const parsed = registerSchema.safeParse(data);
-    if (!parsed.success) {
-      toast.error("Invalid form data");
-      return;
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      dispatch(clearError());
     }
-    dispatch(registerThunk(parsed.data));
+  }, [error, dispatch]);
+
+  const onSubmit = async (data: Register) => {
+    try {
+      const message = await dispatch(registerThunk(data)).unwrap();
+      toast.success(
+        "Account created successfully! Please check your email to activate your account.",
+      );
+      toast.success("Account created!", {
+        description: message as string,
+        duration: 5000,
+      });
+      hookform.reset();
+      router.push("/login");
+    } catch {}
   };
 
   return (

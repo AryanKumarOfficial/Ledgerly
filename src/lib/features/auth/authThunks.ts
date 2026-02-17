@@ -1,5 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getCurrentUser, loginUser, registerUser } from "../../api/auth.api";
+import {
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from "../../api/auth.api";
 import { Login, Register } from "@/types/auth.type";
 
 export const initializeAuthThunk = createAsyncThunk(
@@ -21,7 +26,7 @@ export const loginThunk = createAsyncThunk(
       const res = await loginUser(data);
       return res.user;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message);
+      return rejectWithValue(err.response?.data?.message || "Failed to login");
     }
   },
 );
@@ -30,9 +35,23 @@ export const registerThunk = createAsyncThunk(
   async (data: Register, { rejectWithValue }) => {
     try {
       const res = await registerUser(data);
-      return res.user;
+      return res.message || "Please check your email to verify your account.";
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message);
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to register",
+      );
+    }
+  },
+);
+
+export const logoutThunk = createAsyncThunk(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await logoutUser();
+      return true;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Failed to logout");
     }
   },
 );
