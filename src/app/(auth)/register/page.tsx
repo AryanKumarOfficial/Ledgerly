@@ -38,7 +38,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <main className="flex justify-center items-center min-h-screen">
+    <main className="flex justify-center items-center w-full my-10">
       <Card className="w-full sm:max-w-md">
         <CardHeader>
           <CardTitle>Register</CardTitle>
