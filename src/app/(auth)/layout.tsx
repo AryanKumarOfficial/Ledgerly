@@ -13,7 +13,7 @@ export default function AuthLayout({
       </div>
 
       <div className="flex flex-1 items-center justify-center p-4">
-        <div className="w-fit    max-w-md">{children}</div>
+        <div className="w-full max-w-md">{children}</div>
       </div>
     </section>
   );
