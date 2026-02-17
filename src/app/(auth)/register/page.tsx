@@ -8,39 +8,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import React, { useEffect, useState } from "react";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { frontendRegisterSchema, Register } from "@/lib/schema/register";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { registerThunk } from "@/lib/features/auth/authThunks";
+import { useRouter } from "next/navigation";
+import { clearError } from "@/lib/features/auth/authSlice";
+import {
+  ArrowRight,
+  Loader2,
+  Mail,
+  User,
+  Phone,
+  EyeOff,
+  Eye,
+  Lock,
+} from "lucide-react";
+import Link from "next/link";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Separator } from "@/components/ui/separator";
-import { clearError } from "@/lib/features/auth/authSlice";
-import { registerThunk } from "@/lib/features/auth/authThunks";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { frontendRegisterSchema, Register } from "@/lib/schema/register";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  Phone,
-  User,
-  Lock,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 const RegisterPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -82,207 +82,196 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <Card className="w-full shadow-xl border border-border/40 backdrop-blur-sm bg-card/95">
-      <CardHeader className="text-center space-y-2 pb-6">
-        <CardTitle className="text-2xl font-bold tracking-tight">
-          Create an account
-        </CardTitle>
-        <CardDescription>
-          Enter your details below to create your account
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        <form
-          id="registration-form"
-          onSubmit={hookform.handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <FieldGroup>
-            {/* Name Field */}
-            <Controller
-              name="name"
-              control={hookform.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Full Name</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <User />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id="name"
-                      placeholder="John Doe"
-                      autoComplete="name"
-                    />
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            {/* Email Field */}
-            <Controller
-              name="email"
-              control={hookform.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">Email Address</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <Mail />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      autoComplete="email"
-                    />
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            {/* Phone Field */}
-            <Controller
-              name="phone"
-              control={hookform.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <Phone />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id="phone"
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      autoComplete="tel"
-                    />
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            {/* Password Field */}
-            <Controller
-              name="password"
-              control={hookform.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <Lock />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create a password"
-                      autoComplete="new-password"
-                    />
-                    <InputGroupButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                    >
-                      {showPassword ? <EyeOff /> : <Eye />}
-                    </InputGroupButton>
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            {/* Confirm Password Field */}
-            <Controller
-              name="confirmPassword"
-              control={hookform.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">
-                    Confirm Password
-                  </FieldLabel>
-                  <InputGroup>
-                    <InputGroupAddon>
-                      <Lock />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      {...field}
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirm your password"
-                      autoComplete="new-password"
-                    />
-                    <InputGroupButton
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      aria-label={
-                        showConfirmPassword ? "Hide password" : "Show password"
-                      }
-                    >
-                      {showConfirmPassword ? <EyeOff /> : <Eye />}
-                    </InputGroupButton>
-                  </InputGroup>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
-
-          <Button
-            type="submit"
-            className="w-full mt-6 h-11"
-            disabled={loading}
-            size="lg"
+    <main className="flex justify-center items-center w-full my-10">
+      <Card className="w-full sm:max-w-md">
+        <CardHeader className="text-center space-y-2 pb-6">
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Create an account
+          </CardTitle>
+          <CardDescription>
+            Enter your details below to create your account
+          </CardDescription>
+        </CardHeader>
+        <Separator decorative={true} className="container mx-auto" />
+        <CardContent>
+          <form
+            id="registration-form"
+            onSubmit={hookform.handleSubmit(onSubmit)}
           >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              <>
-                Create Account <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
+            <FieldGroup>
+              <Controller
+                name="name"
+                control={hookform.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="name">Name</FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <User />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id="name"
+                        placeholder="John Doe"
+                        aria-invalid={fieldState.invalid}
+                      />
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
-      <Separator />
+              <Controller
+                name="email"
+                control={hookform.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <Mail />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id="email"
+                        type="email"
+                        placeholder="john@example.com"
+                        aria-invalid={fieldState.invalid}
+                      />
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
 
-      <CardFooter className="py-6 justify-center">
-        <p className="text-sm text-muted-foreground text-center">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-primary font-medium hover:underline underline-offset-4"
-          >
-            Sign in
-          </Link>
-        </p>
-      </CardFooter>
-    </Card>
+              <Controller
+                name="phone"
+                control={hookform.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="phone">Phone</FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <Phone />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id="phone"
+                        type="tel"
+                        placeholder="+91 98765 43210"
+                        aria-invalid={fieldState.invalid}
+                      />
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={hookform.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <Lock />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="******"
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="off"
+                      />
+                      <InputGroupButton
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </InputGroupButton>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="confirmPassword"
+                control={hookform.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="conformPassword">
+                      Confirm Password
+                    </FieldLabel>
+                    <InputGroup>
+                      <InputGroupAddon>
+                        <Lock />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        {...field}
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="******"
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="off"
+                      />
+                      <InputGroupButton
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? <EyeOff /> : <Eye />}
+                      </InputGroupButton>
+                    </InputGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full cursor-pointer"
+                disabled={loading}
+                size="lg"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating
+                    account...
+                  </>
+                ) : (
+                  <>
+                    Create Account <ArrowRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </FieldGroup>
+          </form>
+        </CardContent>
+        <Separator decorative={true} className="justify-center" />
+        <CardFooter>
+          <p className="text-sm text-muted-foreground text-center">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-primary font-medium hover:text-primary/50"
+            >
+              Sign in
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
+    </main>
   );
 };
 
