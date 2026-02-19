@@ -31,7 +31,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,6 +71,11 @@ const LoginPage: React.FC = () => {
       hookform.reset();
     } catch {}
   };
+
+  const currentEmail = useWatch({
+    control: hookform.control,
+    name: "email",
+  });
 
   return (
     <main className="flex justify-center items-center w-full my-10">
@@ -117,7 +122,15 @@ const LoginPage: React.FC = () => {
                 control={hookform.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <div className="flex items-center justify-between">
+                      <FieldLabel htmlFor="password">Password</FieldLabel>
+                      <Link
+                        href={currentEmail.trim()?`/forgot-password?email=${currentEmail}`:`/forget-password`}
+                        className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
                     <InputGroup>
                       <InputGroupAddon>
                         <Lock />
@@ -143,6 +156,7 @@ const LoginPage: React.FC = () => {
                   </Field>
                 )}
               />
+
               <Button
                 type="submit"
                 className="w-full cursor-pointer"
