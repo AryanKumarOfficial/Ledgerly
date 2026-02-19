@@ -21,7 +21,9 @@ if (process.env.NODE_ENV !== "production") {
   }
   postgreSqlClient = global.postgreSqlClient;
 } else {
-  postgreSqlClient = postgres(connectionString);
+  postgreSqlClient = postgres(connectionString, {
+    prepare: false,
+  });
 }
 
 export const db = drizzle(postgreSqlClient, {
