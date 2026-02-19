@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { logoutThunk } from "@/lib/features/auth/authThunks";
 import { ModeToggle } from "@/components/ui/theme-toggle";
@@ -17,11 +17,13 @@ export default function PrivateSidebar({
   setIsMobileMenuOpen,
 }: PrivateSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logoutThunk());
+  const handleLogout = async () => {
+    await dispatch(logoutThunk());
+    router.replace("/login");
   };
 
   const navLinks = [
@@ -70,9 +72,12 @@ export default function PrivateSidebar({
       className={`fixed md:relative z-40 w-64 h-dvh md:h-auto transition-all duration-300 ease-in-out bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-r border-white/30 dark:border-white/10 shadow-xl flex flex-col ${isMobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0 md:opacity-100"} md:translate-x-0`}
     >
       <div className="hidden md:flex h-16 items-center justify-between px-6 border-b border-white/30 dark:border-white/10 shrink-0">
-        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-tight">
+        <Link
+          href={"/dashboard"}
+          className="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-tight"
+        >
           Ledgerly
-        </span>
+        </Link>
         <ModeToggle />
       </div>
 

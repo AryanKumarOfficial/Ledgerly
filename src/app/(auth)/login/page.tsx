@@ -57,7 +57,7 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [router, isAuthenticated, dispatch]);
 
