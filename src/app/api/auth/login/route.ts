@@ -18,6 +18,7 @@ export const POST = async (req: NextRequest) => {
         {
           success,
           message: z.treeifyError(result.error).properties,
+          error: `Invalid input`,
         },
         { status: 400 },
       );
@@ -33,7 +34,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success,
-          message: `Invalid Credentials`,
+          message: `Invalid Credentials - user not exists`,
         },
         { status: 400 },
       );
@@ -54,7 +55,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success,
-          message: `Invalid Credentials`,
+          message: `Invalid Credentials -wrong password`,
         },
         { status: 400 },
       );

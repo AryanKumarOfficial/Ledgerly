@@ -20,7 +20,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success,
-          message: z.treeifyError(result.error),
+          message: result.error.issues[0]?.message || `Invalid Input`,
         },
         { status: 400 },
       );
@@ -59,6 +59,14 @@ export const POST = async (req: NextRequest) => {
           success,
           message: `Link Expired`,
         },
+        { status: 400 },
+      );
+    }
+
+    const isSame = await argon2.verify(existingUser.password, newPassword);
+    if (isSame) {
+      return NextResponse.json(
+        { success, message: "New password must be different" },
         { status: 400 },
       );
     }

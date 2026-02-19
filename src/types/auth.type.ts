@@ -9,3 +9,9 @@ export interface Register {
   phone: string;
   password: string;
 }
+
+export interface Reset {
+  token: string;
+  uid: string;
+  newPassword: string;
+}

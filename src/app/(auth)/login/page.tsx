@@ -125,7 +125,7 @@ const LoginPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
                       <Link
-                        href={currentEmail.trim()?`/forgot-password?email=${currentEmail}`:`/forget-password`}
+                        href={currentEmail.trim()?`/forgot-password?email=${currentEmail}`:`/forgot-password`}
                         className="text-xs text-muted-foreground hover:text-primary hover:underline"
                       >
                         Forgot password?

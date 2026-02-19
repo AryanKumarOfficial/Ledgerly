@@ -64,7 +64,7 @@ export const POST = async (req: NextRequest) => {
       userId: userExists.id,
     });
 
-    const resetLink = `${baseEnv.hostUrl}/auth/reset-password?token=${token}&uid=${userExists.id}`;
+    const resetLink = `${baseEnv.hostUrl}/reset-password?token=${token}&uid=${userExists.id}`;
 
     await inngest.send({
       name: "auth/password-reset.send",
