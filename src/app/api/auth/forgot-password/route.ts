@@ -64,14 +64,13 @@ export const POST = async (req: NextRequest) => {
       userId: userExists.id,
     });
 
-    const verificationLink = `${baseEnv.hostUrl}/auth/reset-password?token=${token}&uid=${userExists.id}`;
+    const resetLink = `${baseEnv.hostUrl}/auth/reset-password?token=${token}&uid=${userExists.id}`;
 
     await inngest.send({
-      name: "auth/verification.send",
+      name: "auth/password-reset.send",
       data: {
         email: userExists.email,
-        subject: `Forget Password Request - ${baseEnv.appName}`,
-        link: verificationLink,
+        resetLink,
         name: userExists.name,
       },
     });

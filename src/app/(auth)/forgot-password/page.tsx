@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Link from "next/link";
 import { z } from "zod";
+import { forgotPassword } from "@/lib/api/auth.api";
 
 /* ---------------- SCHEMA ---------------- */
 
@@ -56,10 +57,13 @@ const ForgetPassword: React.FC = () => {
   const handleSubmit = async (data: ForgotPasswordForm) => {
     setLoading(true);
     try {
-      //  TODO: API call
-      toast.success("Reset link sent", {
-        description: "Check your email for password reset instructions.",
-      });
+      const result = await forgotPassword(data.email);
+      if (result.status === 500) {
+        toast.error(`Failed to send Link`, {
+          description: result?.data?.message || "",
+        });
+      }
+      toast.success(result.data.message || "Reset link sent");
       hookform.reset();
     } catch {
       toast.error("Failed to send reset link");

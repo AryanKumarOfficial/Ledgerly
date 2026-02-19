@@ -26,3 +26,12 @@ export const getCurrentUser = async () => {
 export const logoutUser = async () => {
   await api.post(`/auth/logout`);
 };
+
+export const forgotPassword = async (email: string) => {
+  try {
+    const res = await api.post(`/auth/forgot-password`, { email });
+    return res;
+  } catch (err: any) {
+    throw err;
+  }
+};
