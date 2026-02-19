@@ -12,9 +12,10 @@ export const initializeAuthThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const data = await getCurrentUser();
+      if (!data) return null;
       return data.user;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch {
+      return rejectWithValue(`Initialization failed`);
     }
   },
 );
@@ -24,6 +25,7 @@ export const loginThunk = createAsyncThunk(
   async (data: Login, { rejectWithValue }) => {
     try {
       const res = await loginUser(data);
+      console.log(`resping user at thunk: `, res.user);
       return res.user;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || "Failed to login");

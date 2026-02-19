@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { loading, error, isAuthenticated } = useAppSelector(
+  const { loading, error, isAuthenticated, user } = useAppSelector(
     (state) => state.auth,
   );
   const hookform = useForm<Login>({
@@ -63,9 +63,9 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: Login) => {
     try {
-      const message = await dispatch(loginThunk(data)).unwrap();
+      await dispatch(loginThunk(data));
       toast.success("Logged In!", {
-        description: message as string,
+        description: `Welcome back, ${user.name}`,
         duration: 5000,
       });
       hookform.reset();

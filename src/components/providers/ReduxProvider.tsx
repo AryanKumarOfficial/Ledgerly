@@ -1,8 +1,9 @@
 "use client";
 import { initializeAuthThunk } from "@/lib/features/auth/authThunks";
-import { store } from "@/lib/store";
+import { persistor, store } from "@/lib/store";
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/lib/integration/react";
 
 function InitAuth() {
   useEffect(() => {
@@ -18,8 +19,10 @@ export default function ReduxProvider({
 }) {
   return (
     <Provider store={store}>
-      <InitAuth />
-      {children}
+      <PersistGate loading={null} persistor={persistor}>
+        <InitAuth />
+        {children}
+      </PersistGate>
     </Provider>
   );
 }

@@ -12,9 +12,15 @@ export const registerUser = async (data: Register) => {
 };
 
 export const getCurrentUser = async () => {
-  const res = await api.get(`/auth/me`);
-  console.log("cur user: ", res?.data);
-  return res.data;
+  try {
+    const res = await api.get(`/auth/me`);
+    return res.data;
+  } catch (err: any) {
+    if (err.response?.status === 401) {
+      return null;
+    }
+    throw err;
+  }
 };
 
 export const logoutUser = async () => {

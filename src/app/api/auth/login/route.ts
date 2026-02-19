@@ -71,16 +71,19 @@ export const POST = async (req: NextRequest) => {
 
     (await cookies()).set("session", token, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       expires: expiresAt,
     });
 
+    const { password, ...returningUser } = userExists;
+
     return NextResponse.json({
       success: true,
       sessionToken: token,
       message: `logged in successfully`,
+      user: returningUser,
     });
   } catch (error) {
     console.error(`Error logging in: `, error);
