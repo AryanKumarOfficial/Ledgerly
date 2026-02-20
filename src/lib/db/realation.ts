@@ -10,6 +10,7 @@ import {
   beneficiary,
   verificationToken,
   session,
+  cardRevealLog,
 } from "@/lib/db/schema";
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -18,6 +19,7 @@ export const userRelations = relations(user, ({ many }) => ({
   notifications: many(notification),
   beneficiaries: many(beneficiary),
   sessions: many(session),
+  cardRevealLogs: many(cardRevealLog),
 }));
 
 export const cardRelations = relations(card, ({ one, many }) => ({
@@ -28,6 +30,7 @@ export const cardRelations = relations(card, ({ one, many }) => ({
   transactions: many(transaction),
   bills: many(bill),
   providerBills: many(providerGeneratedBill),
+  revealLogs: many(cardRevealLog),
 }));
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
@@ -99,5 +102,16 @@ export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, {
     fields: [session.userId],
     references: [user.id],
+  }),
+}));
+
+export const cardRevealLogRelations = relations(cardRevealLog, ({ one }) => ({
+  user: one(user, {
+    fields: [cardRevealLog.userId],
+    references: [user.id],
+  }),
+  card: one(card, {
+    fields: [cardRevealLog.cardId],
+    references: [card.id],
   }),
 }));

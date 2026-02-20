@@ -1,3 +1,5 @@
+import { systemEnv } from "@/env";
+import crypto from "crypto";
 export const detectCardNetwork = (CIN: string) => {
   const number = sanitizeCardNumber(CIN);
   const length = number.length;
@@ -49,3 +51,43 @@ export const sanitizeCardNumber = (CIN: string) => {
 export const generateMaskedCardNumber = (CIN: string) => {
   return CIN.slice(-4);
 };
+
+export class CardSecurity {
+  private static algorithm = "aes-256-cbc";
+  private static key = systemEnv.cardEncryptionKey;
+  private static ivLength = 16;
+  public static encryptCard(CIN: string) {
+    const iv = crypto.randomBytes(this.ivLength);
+    const cipher = crypto.createCipheriv(
+      this.algorithm,
+      Buffer.from(this.key),
+      iv,
+    );
+    let encrypted = cipher.update(CIN);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString("hex") + ":" + encrypted.toString("hex");
+  }
+
+  public static decryptCard(encryptedCard: string) {
+    const parts = encryptedCard.split(":");
+    const iv = Buffer.from(parts.shift()!, "hex");
+    const encryptedText = Buffer.from(parts.join(":"), "hex");
+    const decipher = crypto.createDecipheriv(
+      this.algorithm,
+      Buffer.from(this.key),
+      iv,
+    );
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  }
+}
+
+const encrypted = CardSecurity.encryptCard("5334670043961776");
+
+console.log(`ENcryption....`);
+
+console.log(encrypted);
+const decrypted = CardSecurity.decryptCard(encrypted);
+
+console.log(decrypted);

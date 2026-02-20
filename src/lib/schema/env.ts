@@ -9,4 +9,6 @@ export const envSchema = z.object({
   SMTP_SERVICE: z.string().min(1),
   SMTP_USER: z.email({ error: `Invalid Email` }),
   SMTP_PASS: z.string().min(1),
+
+  CARD_ENCRYPTION_KEY: z.string().min(1),
 });

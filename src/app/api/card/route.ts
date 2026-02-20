@@ -3,6 +3,7 @@ import { card } from "@/lib/db/schema";
 import { getCurrentUser } from "@/lib/middleware/auth";
 import { cardSchema } from "@/lib/schema/card";
 import {
+  CardSecurity,
   detectCardNetwork,
   generateMaskedCardNumber,
   sanitizeCardNumber,
@@ -64,7 +65,7 @@ export const POST = async (req: NextRequest) => {
       userId: currentUser.id,
       nickname,
       billingCycleDay,
-      cardNumber: sanitizedCardNumber,
+      cardNumber: CardSecurity.encryptCard(sanitizedCardNumber),
       cardNumberMasked: generateMaskedCardNumber(sanitizedCardNumber),
       network: detectCardNetwork(sanitizedCardNumber),
       expirationDate,

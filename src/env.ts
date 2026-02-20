@@ -6,7 +6,9 @@ const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
   console.error("❌ Invalid environment variables:");
-  console.error(z.treeifyError(parsed.error));
+  console.error(
+    `${parsed.error.issues[0].path} : ${parsed.error.issues[0].input} : ${parsed.error.issues[0].message}`,
+  );
   process.exit(1);
 }
 
@@ -28,4 +30,8 @@ const smtpEnv = {
   sender: env.SMTP_USER,
 };
 
-export { databaseEnv, smtpEnv, baseEnv };
+const systemEnv = {
+  cardEncryptionKey: env.CARD_ENCRYPTION_KEY,
+};
+
+export { databaseEnv, smtpEnv, baseEnv, systemEnv };
