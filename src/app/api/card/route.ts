@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { card } from "@/lib/db/schema";
 import { getCurrentUser } from "@/lib/middleware/auth";
 import { cardSchema } from "@/lib/schema/card";
+import { passwordSchema } from "@/lib/schema/register";
 import {
   CardSecurity,
   detectCardNetwork,
@@ -10,6 +11,13 @@ import {
 } from "@/utils/card";
 import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import argon2 from "argon2";
+
+const deleteSchema = z.object({
+  password: passwordSchema,
+  cardId: z.uuid({ error: `Invalid ID Format` }),
+});
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -33,14 +41,13 @@ export const POST = async (req: NextRequest) => {
         message: result.error.issues[0].message,
       });
     }
-
     const {
-      cardNumber,
       billingCycleDay,
+      cardBrand,
+      cardNumber,
       creditLimit,
       expirationDate,
       nickname,
-      cardBrand,
     } = result.data;
 
     const sanitizedCardNumber = sanitizeCardNumber(cardNumber);
@@ -105,5 +112,81 @@ export const POST = async (req: NextRequest) => {
           ? (error as Error).message
           : undefined,
     });
+  }
+};
+
+export const DELETE = async (req: NextRequest) => {
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Unauthorized`,
+        },
+        { status: 401 },
+      );
+    }
+
+    const body = await req.json();
+    const result = deleteSchema.safeParse(body);
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `${result.error.issues[0].path} : ${result.error.issues[0].message}`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const { cardId, password } = result.data;
+
+    const isValid = await argon2.verify(currentUser.password, password);
+    if (!isValid) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Invalid Credentials`,
+        },
+        { status: 401 },
+      );
+    }
+
+    const deletedCard = await db
+      .delete(card)
+      .where(and(eq(card.id, cardId), eq(card.userId, currentUser.id)))
+      .returning();
+
+    if (deletedCard.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Card Not Found`,
+        },
+        {
+          status: 404,
+        },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Card Deleted successfully`,
+      data: deletedCard[0],
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: `Internal Server Error`,
+        error:
+          process.env.NODE_ENV !== "production"
+            ? (error as Error)?.message
+            : undefined,
+      },
+      { status: 500 },
+    );
   }
 };
