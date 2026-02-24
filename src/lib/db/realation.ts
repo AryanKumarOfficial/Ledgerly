@@ -20,6 +20,12 @@ export const userRelations = relations(user, ({ many }) => ({
   beneficiaries: many(beneficiary),
   sessions: many(session),
   cardRevealLogs: many(cardRevealLog),
+  beneficiariesOwned: many(beneficiary, {
+    relationName: "owner",
+  }),
+  beneficiariesProvided: many(beneficiary, {
+    relationName: "provider",
+  }),
 }));
 
 export const cardRelations = relations(card, ({ one, many }) => ({
@@ -81,9 +87,15 @@ export const notificationRelations = relations(notification, ({ one }) => ({
 }));
 
 export const beneficiaryRelations = relations(beneficiary, ({ one, many }) => ({
-  user: one(user, {
+  owner: one(user, {
     fields: [beneficiary.userId],
     references: [user.id],
+    relationName: "owner",
+  }),
+  provider: one(user, {
+    fields: [beneficiary.providerId],
+    references: [user.id],
+    relationName:"provider"
   }),
   transactions: many(transaction),
 }));

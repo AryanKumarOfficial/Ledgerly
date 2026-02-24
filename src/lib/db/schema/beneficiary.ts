@@ -1,4 +1,10 @@
-import { pgTable, varchar, uuid, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  varchar,
+  uuid,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { user } from "./user";
 
 export const beneficiary = pgTable(
@@ -9,6 +15,12 @@ export const beneficiary = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
     name: varchar("name", { length: 256 }).notNull(),
+    providerId: uuid("provider_id")
+      .notNull()
+      .references(() => user.id),
   },
-  (table) => [index("beneficiary_user_idx").on(table.userId)],
+  (table) => [
+    index("beneficiary_user_idx").on(table.userId),
+    uniqueIndex("provider_user_unique").on(table.providerId, table.userId),
+  ],
 );
