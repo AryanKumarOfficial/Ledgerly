@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/AryanKumarOfficial/ledgerly#readme
+    about: Read the documentation before creating an issue
+
+  - name: 🔒 Security Report
+    url: mailto:your-email@example.com
+    about: Report security vulnerabilities privately
+
+  - name: 💬 Discussions / Questions
+    url: https://github.com/AryanKumarOfficial/ledgerly/discussions
+    about: Ask questions or discuss ideas
