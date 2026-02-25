@@ -26,6 +26,9 @@ export const userRelations = relations(user, ({ many }) => ({
   beneficiariesProvided: many(beneficiary, {
     relationName: "provider",
   }),
+  providersBillAdded: many(providerGeneratedBill, {
+    relationName: "providerBillAddedBy",
+  }),
 }));
 
 export const cardRelations = relations(card, ({ one, many }) => ({
@@ -76,6 +79,11 @@ export const providerBillRelations = relations(
       fields: [providerGeneratedBill.cardId],
       references: [card.id],
     }),
+    addedByUser: one(user, {
+      fields: [providerGeneratedBill.addedBy],
+      references: [user.id],
+      relationName: "providerBillAddedBy",
+    }),
   }),
 );
 
@@ -95,7 +103,7 @@ export const beneficiaryRelations = relations(beneficiary, ({ one, many }) => ({
   provider: one(user, {
     fields: [beneficiary.providerId],
     references: [user.id],
-    relationName:"provider"
+    relationName: "provider",
   }),
   transactions: many(transaction),
 }));

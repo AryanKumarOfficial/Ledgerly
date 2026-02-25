@@ -8,6 +8,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { card } from "./card";
+import { user } from "./user";
 
 export const providerGeneratedBill = pgTable(
   "provider_generated_bill",
@@ -16,6 +17,9 @@ export const providerGeneratedBill = pgTable(
     cardId: uuid("card_id")
       .notNull()
       .references(() => card.id, { onUpdate: "cascade", onDelete: "cascade" }),
+    addedBy: uuid("added_by")
+      .notNull()
+      .references(() => user.id),
     startDate: date("start_date").notNull(),
     endDate: date(`end_date`).notNull(),
     totalAmount: decimal("total_amount", { precision: 12, scale: 2 }).notNull(),
