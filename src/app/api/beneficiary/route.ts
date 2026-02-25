@@ -166,3 +166,43 @@ export const DELETE = async (req: NextRequest) => {
     });
   }
 };
+
+export const GET = async () => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Unauthorized`,
+        },
+        { status: 401 },
+      );
+    }
+
+    const beneficiaries = await db.query.beneficiary.findMany({
+      where: eq(beneficiary.providerId, currentUser.id),
+    });
+
+    if (beneficiaries.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `No Beneficiary Found`,
+        },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(beneficiaries);
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      message: `Internal Server Error`,
+      error:
+        process.env.NODE_ENV !== "production"
+          ? (error as Error)?.message
+          : undefined,
+    });
+  }
+};
