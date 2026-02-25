@@ -219,7 +219,7 @@ export const GET = async () => {
       );
     }
 
-    return NextResponse.json(cards);
+    return NextResponse.json({ cards, success: true });
   } catch (error) {
     return NextResponse.json({
       success: false,

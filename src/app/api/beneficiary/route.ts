@@ -194,7 +194,7 @@ export const GET = async () => {
       );
     }
 
-    return NextResponse.json(beneficiaries);
+    return NextResponse.json({ beneficiaries, success: true });
   } catch (error) {
     return NextResponse.json({
       success: false,
