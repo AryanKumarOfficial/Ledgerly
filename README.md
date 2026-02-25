@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ledgerly
 
-## Getting Started
+Ledgerly is a secure, modern financial card and beneficiary management platform built with **Next.js, TypeScript, and PostgreSQL**. It provides an API-first architecture and dashboard for managing cards, beneficiaries, and financial relationships securely.
 
-First, run the development server:
+## ✨ Features
+
+* 🔐 Secure authentication (JWT-based)
+* 💳 Card management with masked storage
+* 👤 Beneficiary management and linking
+* ⚡ API-first backend architecture
+* 🧩 Modular and scalable system design
+* 🗄 PostgreSQL with Drizzle ORM
+* 🎨 Modern UI with Next.js and Tailwind
+
+---
+
+## 🏗 Tech Stack
+
+**Frontend**
+
+* Next.js 15
+* TypeScript
+* Tailwind CSS
+
+**Backend**
+
+* Next.js API Routes
+* Drizzle ORM
+* PostgreSQL
+
+**Security**
+
+* Input validation
+* Card masking
+* Secure authentication flows
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+ ├── app/
+ ├── lib/
+ │    ├── db/
+ │    ├── auth/
+ │    └── utils/
+ ├── api/
+drizzle/
+```
+
+---
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/AryanKumarOfficial/ledgerly.git
+cd ledgerly
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Setup environment variables:
+
+```
+DATABASE_URL=
+JWT_SECRET=
+```
+
+Run development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Roadmap
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See [steps.md](./steps.md)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🤝 Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🔒 Security
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+See [SECURITY.md](./SECURITY.md)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+Aryan Kumar
+Full Stack Developer
