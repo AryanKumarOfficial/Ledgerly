@@ -98,3 +98,71 @@ export const POST = async (req: NextRequest) => {
     );
   }
 };
+
+export const DELETE = async (req: NextRequest) => {
+  try {
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Unauthorized`,
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const { beneficiaryId } = await req.json();
+
+    if (
+      !beneficiaryId ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        beneficiaryId,
+      )
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Beneficiary ID Invalid`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const deleting = await db
+      .delete(beneficiary)
+      .where(
+        and(
+          eq(beneficiary.id, beneficiaryId),
+          eq(beneficiary.providerId, currentUser.id),
+        ),
+      )
+      .returning();
+
+    if (deleting.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Beneficiary Not Found!`,
+        },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Beneficiary with name ${deleting[0].name} deleted Successfully`,
+    });
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      message: `Internal Server Error`,
+      error:
+        process.env.NODE_ENV !== "production"
+          ? (error as Error)?.message
+          : undefined,
+    });
+  }
+};
