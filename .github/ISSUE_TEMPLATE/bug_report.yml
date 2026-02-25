@@ -1,0 +1,41 @@
+name: 🐛 Bug Report
+description: Report a bug in Ledgerly
+title: "[BUG]: "
+labels: ["bug"]
+assignees:
+  - AryanKumarOfficial
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Ledgerly 🚀
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to API
+        2. Send request
+        3. See error
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / API response
+      render: shell
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Node 20, Chrome, Windows
