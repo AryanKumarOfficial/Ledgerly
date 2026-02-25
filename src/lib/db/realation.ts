@@ -20,10 +20,10 @@ export const userRelations = relations(user, ({ many }) => ({
   beneficiaries: many(beneficiary),
   sessions: many(session),
   cardRevealLogs: many(cardRevealLog),
-  beneficiariesOwned: many(beneficiary, {
+  beneficiariesReceived: many(beneficiary, {
     relationName: "owner",
   }),
-  beneficiariesProvided: many(beneficiary, {
+  beneficiariesGranted: many(beneficiary, {
     relationName: "provider",
   }),
   providersBillAdded: many(providerGeneratedBill, {
@@ -40,6 +40,7 @@ export const cardRelations = relations(card, ({ one, many }) => ({
   bills: many(bill),
   providerBills: many(providerGeneratedBill),
   revealLogs: many(cardRevealLog),
+  beneficiaries: many(beneficiary),
 }));
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
@@ -95,15 +96,19 @@ export const notificationRelations = relations(notification, ({ one }) => ({
 }));
 
 export const beneficiaryRelations = relations(beneficiary, ({ one, many }) => ({
-  owner: one(user, {
+  beneficiaryUser: one(user, {
     fields: [beneficiary.userId],
     references: [user.id],
     relationName: "owner",
   }),
-  provider: one(user, {
+  owner: one(user, {
     fields: [beneficiary.providerId],
     references: [user.id],
     relationName: "provider",
+  }),
+  card: one(card, {
+    fields: [beneficiary.cardId],
+    references: [card.id],
   }),
   transactions: many(transaction),
 }));
