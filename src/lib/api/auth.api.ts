@@ -1,4 +1,4 @@
-import type { Login, Register, Reset } from "@/types/auth.type";
+import type { Change, Login, Register, Reset } from "@/types/auth.type";
 import { api } from "./axios";
 
 export const loginUser = async (data: Login) => {
@@ -44,11 +44,24 @@ export const forgotPassword = async (email: string) => {
 export const resetPassword = async (data: Reset) => {
   try {
     const res = await api.post(`/auth/reset-password`, data);
-    console.log("API response:", res);
     return res.data;
   } catch (err: any) {
     throw (
       err.response?.data || {
+        success: false,
+        message: `Something went wrong`,
+      }
+    );
+  }
+};
+
+export const changePassword = async (data: Change) => {
+  try {
+    const res = await api.put("/auth/change-password", data);
+    return res.data;
+  } catch (error: any) {
+    throw (
+      error.response?.data || {
         success: false,
         message: `Something went wrong`,
       }

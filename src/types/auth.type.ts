@@ -15,3 +15,8 @@ export interface Reset {
   uid: string;
   newPassword: string;
 }
+
+export interface Change {
+  currentPassword: string;
+  newPassword: string;
+}

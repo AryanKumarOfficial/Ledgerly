@@ -2,12 +2,57 @@
 
 import React, { useState } from "react";
 import { useAppSelector } from "@/lib/hooks";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ChangePassword,
+  changePasswordSchema,
+} from "@/lib/schema/ChnagePassword";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Fingerprint } from "lucide-react";
+import { changePassword } from "@/lib/api/auth.api";
+import { toast } from "sonner";
 
 const ProfilePage: React.FC = () => {
   const { user, isInitializing } = useAppSelector((state) => state.auth);
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const changePasswordHookForm = useForm<ChangePassword>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  });
+
+  const onSubmitPassword = async (data: ChangePassword) => {
+    try {
+      const result = await changePassword(data);
+      if (!result.success) {
+        toast.success(result.message || `Failed to change Password`);
+      } else {
+        toast.error(result.message || `Password Changed!!!`);
+      }
+    } catch (error) {
+      toast.error((error as any).message || `Something went wrong`);
+    } finally {
+      changePasswordHookForm.reset();
+    }
+  };
 
   if (isInitializing) {
     return (
@@ -35,7 +80,7 @@ const ProfilePage: React.FC = () => {
           Personal Information
         </h2>
 
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormInput label="Full Name" defaultValue={user.name} />
 
@@ -84,18 +129,96 @@ const ProfilePage: React.FC = () => {
 
         <form
           className="space-y-6 max-w-md"
-          onSubmit={(e) => e.preventDefault()}
+          id="change-password"
+          onSubmit={changePasswordHookForm.handleSubmit(onSubmitPassword)}
         >
-          <FormInput label="Current Password" type="password" />
-          <FormInput label="New Password" type="password" />
-          <FormInput label="Confirm New Password" type="password" />
+          <FieldGroup>
+            <Controller
+              name="currentPassword"
+              control={changePasswordHookForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="currentPassword">
+                    Current Password
+                  </FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Fingerprint />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id="currentPassword"
+                      type="password"
+                      placeholder="********"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Controller
+              name="newPassword"
+              control={changePasswordHookForm.control}
+              render={({ field, fieldState }) => (
+                <Field aria-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="newPassword">New Password</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Fingerprint />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id="newPassword"
+                      type="password"
+                      placeholder="Strong Password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="confirmPassword"
+              control={changePasswordHookForm.control}
+              render={({ field, fieldState }) => (
+                <Field aria-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="confirmPassword">
+                    Confirm Password
+                  </FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Fingerprint />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm your Password"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error, fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
 
           <button
             type="submit"
-            onClick={() => setIsChangingPassword(true)}
             className="px-6 py-2.5 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-medium rounded-xl transition-all shadow-md hover:shadow-lg"
           >
-            {isChangingPassword ? "Updating..." : "Update Password"}
+            {changePasswordHookForm.formState.isSubmitting
+              ? "Updating..."
+              : "Update Password"}
           </button>
         </form>
       </div>

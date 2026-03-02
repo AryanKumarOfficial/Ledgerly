@@ -50,7 +50,7 @@ export const PUT = async (req: NextRequest) => {
       return NextResponse.json(
         {
           success,
-          message: z.treeifyError(result.error),
+          message: result.error.issues[0].message,
         },
         { status: 400 },
       );
