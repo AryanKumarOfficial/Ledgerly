@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/middleware/auth";
+import { getSanitizeUser } from "@/utils/user";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
@@ -15,7 +16,7 @@ export const GET = async () => {
       );
     }
 
-    return NextResponse.json({ user });
+    return NextResponse.json({ user: getSanitizeUser(user) });
   } catch (error) {
     console.log(`Failed to fetch Profile: `, error);
     return NextResponse.json({

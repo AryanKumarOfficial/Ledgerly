@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useAppSelector } from "@/lib/hooks";
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,15 +19,42 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Fingerprint } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  CircleUser,
+  Fingerprint,
+  Globe,
+  Mail,
+  Phone,
+} from "lucide-react";
 import { changePassword } from "@/lib/api/auth.api";
 import { toast } from "sonner";
+import { Profile, profileSchema } from "@/lib/schema/profile";
+import { formatTimezone, getTimezones } from "@/lib/utility/time";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { UpdateProfile } from "@/types/user.type";
+import { updateProfileThunk } from "@/lib/features/auth/userThunks";
 
 const ProfilePage: React.FC = () => {
   const { user, isInitializing } = useAppSelector((state) => state.auth);
-
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-
+  const dispatch = useAppDispatch();
+  const tz = React.useMemo(() => getTimezones(), []);
   const changePasswordHookForm = useForm<ChangePassword>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
@@ -39,13 +66,48 @@ const ProfilePage: React.FC = () => {
     reValidateMode: "onChange",
   });
 
+  const updateProfileHookForm = useForm<Profile>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      timezone: "",
+    },
+    mode: "onBlur",
+    reValidateMode: "onChange",
+  });
+
+  const currentTz = React.useMemo(
+    () => formatTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone),
+    [],
+  );
+  useEffect(() => {
+    if (!user) return;
+
+    updateProfileHookForm.reset({
+      fullName: user.name ?? "",
+      phone: user.phone ?? "",
+      timezone: user.timezone || "",
+    });
+  }, [user, updateProfileHookForm]);
+
+
+  const onSubmitProfile = async (data: UpdateProfile) => {
+    try {
+      await dispatch(updateProfileThunk(data)).unwrap();
+         toast.success("Profile updated successfully");
+    } catch (error: any) {
+      toast.error(error || `Something went wrong`);
+    }
+  };
+
   const onSubmitPassword = async (data: ChangePassword) => {
     try {
       const result = await changePassword(data);
-      if (!result.success) {
-        toast.success(result.message || `Failed to change Password`);
+      if (result.success) {
+        toast.success(result.message || `Password changed successfully`);
       } else {
-        toast.error(result.message || `Password Changed!!!`);
+        toast.error(result.message || `Failed to change password`);
       }
     } catch (error) {
       toast.error((error as any).message || `Something went wrong`);
@@ -80,45 +142,158 @@ const ProfilePage: React.FC = () => {
           Personal Information
         </h2>
 
-        <form className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormInput label="Full Name" defaultValue={user.name} />
-
-            <FormInput
-              label="Email Address"
-              type="email"
-              defaultValue={user.email}
-              disabled
+        <form
+          id="update-profile"
+          className="space-y-6 flex flex-col"
+          onSubmit={updateProfileHookForm.handleSubmit(onSubmitProfile)}
+        >
+          <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Controller
+              control={updateProfileHookForm.control}
+              name="fullName"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <CircleUser />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id="fullName"
+                      type="text"
+                      aria-invalid={fieldState.invalid}
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
             />
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <InputGroup className="disabled:cursor-not-allowed">
+                <InputGroupAddon>
+                  <Mail />
+                </InputGroupAddon>
+                <InputGroupInput
+                  id="email"
+                  type="email"
+                  value={user.email}
+                  readOnly
+                  className="cursor-not-allowed opacity-70"
+                />
+              </InputGroup>
+            </Field>
+            <Controller
+              control={updateProfileHookForm.control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="phone">Phone</FieldLabel>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Phone />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="phone"
+                      type="tel"
+                    />
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              control={updateProfileHookForm.control}
+              name="timezone"
+              render={({ field, fieldState }) => {
+                const selected = tz.find((tz) => tz.value === field.value);
+                const dispalyTz = selected ?? currentTz;
+                return (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="timezone">Timezone</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          role="combobox"
+                          className="w-full justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 to-muted-foreground" />
+                            {dispalyTz
+                              ? `(${dispalyTz.offset}) ${dispalyTz.label}`
+                              : `Selected Timezone`}
+                          </div>
+                          <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search Timezones" />
+                          <CommandList>
+                            <CommandEmpty className="h-16 w-96 rounded-md flex justify-center items-center">
+                              No Timezone found
+                            </CommandEmpty>
+                            <CommandGroup>
+                              <ScrollArea className="h-72 w-96 rounded-md">
+                                {tz.map((tz) => (
+                                  <CommandItem
+                                    key={tz.value}
+                                    value={tz.value}
+                                    onSelect={() => field.onChange(tz.value)}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        `mr-2 h-4 w-4`,
+                                        field.value === tz.value
+                                          ? `opacity-100`
+                                          : `opacity-0`,
+                                      )}
+                                    />
+                                    <div className="flex items-center justify-between w-full">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-muted-foreground">
+                                          ({tz.offset})
+                                        </span>
+                                      </div>
 
-            <FormInput label="Phone Number" defaultValue={user.phone || ""} />
-
-            <div>
-              <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
-                Timezone
-              </label>
-              <select
-                defaultValue={user.timezone || "UTC"}
-                className="w-full px-4 py-2.5 rounded-xl border border-white/30 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              >
-                <option value="UTC">UTC</option>
-                <option value="America/New_York">
-                  Eastern Time (US & Canada)
-                </option>
-                <option value="Asia/Kolkata">Indian Standard Time (IST)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-6">
-            <button
-              type="submit"
-              onClick={() => setIsUpdatingProfile(true)}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all shadow-md hover:shadow-lg"
-            >
-              {isUpdatingProfile ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
+                                      <span className="text-muted-foreground tabular-nums">
+                                        {tz.label}
+                                      </span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                                <ScrollBar orientation="vertical" />
+                              </ScrollArea>
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+          </FieldGroup>
+          <Button
+            type="submit"
+            className="w-fit self-end"
+            disabled={updateProfileHookForm.formState.isSubmitting}
+          >
+            {updateProfileHookForm.formState.isSubmitting
+              ? `Updating...`
+              : `Update Profile`}
+          </Button>
         </form>
       </div>
 
@@ -164,7 +339,7 @@ const ProfilePage: React.FC = () => {
               name="newPassword"
               control={changePasswordHookForm.control}
               render={({ field, fieldState }) => (
-                <Field aria-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="newPassword">New Password</FieldLabel>
                   <InputGroup>
                     <InputGroupAddon>
@@ -188,7 +363,7 @@ const ProfilePage: React.FC = () => {
               name="confirmPassword"
               control={changePasswordHookForm.control}
               render={({ field, fieldState }) => (
-                <Field aria-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="confirmPassword">
                     Confirm Password
                   </FieldLabel>
@@ -227,31 +402,3 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
-
-interface FormInputProps {
-  label: string;
-  type?: string;
-  defaultValue?: string;
-  disabled?: boolean;
-}
-
-const FormInput: React.FC<FormInputProps> = ({
-  label,
-  type = "text",
-  defaultValue,
-  disabled = false,
-}) => (
-  <div>
-    <label className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
-      {label}
-    </label>
-    <input
-      type={type}
-      defaultValue={defaultValue}
-      disabled={disabled}
-      className={`w-full px-4 py-2.5 rounded-xl border border-white/30 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
-        disabled ? "opacity-70 cursor-not-allowed" : ""
-      }`}
-    />
-  </div>
-);

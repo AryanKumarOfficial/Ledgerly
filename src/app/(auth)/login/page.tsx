@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
     try {
       await dispatch(loginThunk(data));
       toast.success("Logged In!", {
-        description: `Welcome back, ${user.name}`,
+        description: `Welcome back, ${user?.name}`,
         duration: 5000,
       });
       hookform.reset();
@@ -125,7 +125,11 @@ const LoginPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
                       <Link
-                        href={currentEmail.trim()?`/forgot-password?email=${currentEmail}`:`/forgot-password`}
+                        href={
+                          currentEmail.trim()
+                            ? `/forgot-password?email=${currentEmail}`
+                            : `/forgot-password`
+                        }
                         className="text-xs text-muted-foreground hover:text-primary hover:underline"
                       >
                         Forgot password?

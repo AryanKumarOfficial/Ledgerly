@@ -9,6 +9,7 @@ export default function ThemeAwareToaster() {
   return (
     <Toaster
       position="top-right"
+      richColors
       closeButton
       duration={3000}
       theme={resolvedTheme as ToasterProps["theme"]}

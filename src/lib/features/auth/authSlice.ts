@@ -6,8 +6,9 @@ import {
   registerThunk,
 } from "./authThunks";
 import { updateProfileThunk } from "./userThunks";
+import { User } from "@/types/user.type";
 interface AuthState {
-  user: any | null;
+  user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   isInitializing: boolean;
@@ -89,6 +90,7 @@ const authSlice = createSlice({
       })
       .addCase(updateProfileThunk.fulfilled, (state, action) => {
         state.loading = false;
+        state.error = null;
         if (state.user) {
           state.user = {
             ...state.user,
