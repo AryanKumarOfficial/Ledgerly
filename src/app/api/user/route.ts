@@ -50,7 +50,7 @@ export const PATCH = async (req: NextRequest) => {
     return NextResponse.json({
       success: true,
       message: `Profile Updated Successfully`,
-      user: updatedUser,
+      user: updatedUser[0],
     });
   } catch (error) {
     return NextResponse.json(

@@ -5,6 +5,7 @@ import {
   logoutThunk,
   registerThunk,
 } from "./authThunks";
+import { updateProfileThunk } from "./userThunks";
 interface AuthState {
   user: any | null;
   isAuthenticated: boolean;
@@ -68,7 +69,7 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerThunk.fulfilled, (state, action) => {
+      .addCase(registerThunk.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(registerThunk.rejected, (state, action) => {
@@ -81,6 +82,23 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.loading = false;
         state.error = null;
+      })
+      .addCase(updateProfileThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfileThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.user) {
+          state.user = {
+            ...state.user,
+            ...action.payload,
+          };
+        }
+      })
+      .addCase(updateProfileThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
