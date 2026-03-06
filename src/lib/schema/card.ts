@@ -10,3 +10,4 @@ export const cardSchema = z.object({
 });
 
 export type Card = z.infer<typeof cardSchema>;
+export type CardInput = z.input<typeof cardSchema>;
