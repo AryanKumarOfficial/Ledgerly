@@ -9,7 +9,7 @@ import { NextRequest, NextResponse, userAgent } from "next/server";
 import z from "zod";
 
 const revealSchema = z.object({
-  cardId: z.string().uuid(),
+  cardId: z.uuid(),
   password: z.string().min(1),
 });
 export const POST = async (req: NextRequest) => {
