@@ -1,4 +1,5 @@
 import { systemEnv } from "@/env";
+import { Card, SafeCard } from "@/types/card.type";
 import crypto from "crypto";
 export const detectCardNetwork = (CIN: string) => {
   const number = sanitizeCardNumber(CIN);
@@ -81,13 +82,13 @@ export class CardSecurity {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   }
+
+  public static safeCard(card: Card): SafeCard {
+    const { cardNumber, ...sanitizedCard } = card;
+    return sanitizedCard;
+  }
+
+  public static safeCards(cards: Card[]): SafeCard[] {
+    return cards.map(CardSecurity.safeCard);
+  }
 }
-
-const encrypted = CardSecurity.encryptCard("5334670043961776");
-
-console.log(`ENcryption....`);
-
-console.log(encrypted);
-const decrypted = CardSecurity.decryptCard(encrypted);
-
-console.log(decrypted);

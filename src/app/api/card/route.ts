@@ -219,7 +219,10 @@ export const GET = async () => {
       );
     }
 
-    return NextResponse.json({ cards, success: true });
+    return NextResponse.json({
+      cards: CardSecurity.safeCards(cards),
+      success: true,
+    });
   } catch (error) {
     return NextResponse.json({
       success: false,
