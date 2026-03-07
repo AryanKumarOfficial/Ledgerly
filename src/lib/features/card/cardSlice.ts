@@ -12,7 +12,7 @@ interface CardState {
   error: string | null;
 }
 
-const cardsAdapter = createEntityAdapter<SafeCard>({
+export const cardsAdapter = createEntityAdapter<SafeCard>({
   sortComparer: (a, b) => a.nickname.localeCompare(b.nickname),
 });
 const initialState = cardsAdapter.getInitialState<CardState>({
