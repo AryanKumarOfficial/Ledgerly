@@ -1,13 +1,13 @@
 "use client";
 
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import Cards from "react-credit-cards-2";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { cardSchema, CardInput } from "@/lib/schema/card";
+import { cardSchema, CardFormData } from "@/lib/schema/card";
 
 import { usePaymentInputs } from "react-payment-inputs";
 import images from "react-payment-inputs/images";
@@ -34,7 +34,8 @@ import {
 } from "../ui/input-group";
 
 import { CreditCard, Calendar, Hash, Tag } from "lucide-react";
-
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { addCardThunk } from "@/lib/features/card/cardThunk";
 
 type AddCardDialogProps = {
   open: boolean;
@@ -42,10 +43,10 @@ type AddCardDialogProps = {
 };
 
 export function AddCardDialog({ open, onOpenChange }: AddCardDialogProps) {
-  console.log(`images: `, JSON.stringify(images, null, 2));
   const [creditLimit, setCreditLimit] = useState(5000);
-
-  const form = useForm<CardInput>({
+  const dispatch = useAppDispatch();
+  const { loading } = useAppSelector((state) => state.card);
+  const form = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
     defaultValues: {
       cardBrand: "",
@@ -61,14 +62,35 @@ export function AddCardDialog({ open, onOpenChange }: AddCardDialogProps) {
 
   const { getCardNumberProps, getExpiryDateProps, meta } = usePaymentInputs();
 
-  const cardNumber = form.watch("cardNumber");
-  const expiry = form.watch("expirationDate");
-  const nickname = form.watch("nickname");
+  const cardNumber = useWatch({
+    control: form.control,
+    name: "cardNumber",
+  });
 
-  const onSubmit = (data: CardInput) => {
-    console.log(data);
-    onOpenChange(false);
+  const expiry = useWatch({
+    control: form.control,
+    name: "expirationDate",
+  });
+
+  const nickname = useWatch({
+    control: form.control,
+    name: "nickname",
+  });
+  const onSubmit = async (data: CardFormData) => {
+    console.log(`on submit triggered`);
+    try {
+      const result = await dispatch(addCardThunk(data));
+      onOpenChange(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  useEffect(() => {
+    if (meta.cardType?.type) {
+      form.setValue("cardBrand", meta.cardType.type);
+    }
+  }, [meta.cardType, form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,7 +113,13 @@ export function AddCardDialog({ open, onOpenChange }: AddCardDialogProps) {
           />
         </motion.div>
 
-        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+        <form
+          className="space-y-6"
+          onSubmit={
+            (form.handleSubmit(onSubmit),
+            (errors) => console.log("FORM ERRORS:", errors))
+          }
+        >
           <FieldGroup>
             {/* Card Number */}
 
@@ -193,7 +221,7 @@ export function AddCardDialog({ open, onOpenChange }: AddCardDialogProps) {
                     <InputGroupInput
                       id="billingCycleDay"
                       type="number"
-                      value={(field.value as string) ?? ""}
+                      value={field.value ?? ""}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         field.onChange(
                           e.target.value === ""
@@ -250,7 +278,7 @@ export function AddCardDialog({ open, onOpenChange }: AddCardDialogProps) {
             control={form.control}
             render={({ field }) => (
               <Field>
-                <FieldLabel>Credit Limit: ${creditLimit}</FieldLabel>
+                <FieldLabel>Credit Limit: ₹{creditLimit}</FieldLabel>
 
                 <Slider
                   min={1000}

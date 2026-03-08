@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const envSchema = z.object({
-  HOST_URL: z.url(),
-  APP_NAME: z.string().min(1),
+  NEXT_PUBLIC_HOST_URL: z.url(),
+  NEXT_PUBLIC_APP_NAME: z.string().min(1),
 
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 

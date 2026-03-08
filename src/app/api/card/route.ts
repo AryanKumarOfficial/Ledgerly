@@ -19,6 +19,11 @@ const deleteSchema = z.object({
   cardId: z.uuid({ error: `Invalid ID Format` }),
 });
 
+function parseExpirationDate(expiry: string): Date {
+  const [month, year] = expiry.split("/");
+  return new Date(2000 + parseInt(year), parseInt(month) - 1);
+}
+
 export const POST = async (req: NextRequest) => {
   try {
     const currentUser = await getCurrentUser();
@@ -75,7 +80,7 @@ export const POST = async (req: NextRequest) => {
       cardNumber: CardSecurity.encryptCard(sanitizedCardNumber),
       cardNumberMasked: generateMaskedCardNumber(sanitizedCardNumber),
       network: detectCardNetwork(sanitizedCardNumber),
-      expirationDate,
+      expirationDate: parseExpirationDate(expirationDate),
       creditLimit,
       cardBrand,
     };

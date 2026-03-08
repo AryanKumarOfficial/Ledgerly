@@ -1,4 +1,5 @@
 import { addCard, getCards, deleteCard } from "@/lib/api/card.api";
+import { CardFormData } from "@/lib/schema/card";
 import { DeleteCard, InsertCard } from "@/types/card.type";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -17,9 +18,13 @@ export const initializeCardThunk = createAsyncThunk(
 
 export const addCardThunk = createAsyncThunk(
   "card/add",
-  async (data: InsertCard, { rejectWithValue }) => {
+  async (data: CardFormData, { rejectWithValue }) => {
     try {
-      const res = await addCard(data);
+      const apiData: InsertCard = {
+        ...data,
+        expirationDate: parseExpirationDate(data.expirationDate),
+      };
+      const res = await addCard(apiData);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
@@ -42,3 +47,9 @@ export const deleteCardThunk = createAsyncThunk(
     }
   },
 );
+
+export function parseExpirationDate(expiry: string): Date {
+  const [month, year] = expiry.split("/");
+  const fullYear = 2000 + parseInt(year);
+  return new Date(fullYear, parseInt(month) - 1);
+}

@@ -92,3 +92,4 @@ export class CardSecurity {
     return cards.map(CardSecurity.safeCard);
   }
 }
+
